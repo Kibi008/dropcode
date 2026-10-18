@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}{{ share.display_title }} — DropCode{% endblock %}
+{% block content %}
+<h1>{{ share.display_title }}</h1>
+<p class="muted">{{ files|length }} fichier{{ files|length|pluralize }} · disponible jusqu'au {{ share.expires_at|date:"j F Y" }}</p>
+<div class="gallery">
+  {% for f in files %}
+    <figure>
+      {% if f.is_video %}
+        <video controls preload="metadata" playsinline src="{% url 'shared_file' share.code f.pk %}"></video>
+      {% elif f.is_browser_image %}
+        <a href="{% url 'shared_file' share.code f.pk %}" target="_blank" rel="noopener">
+          <img loading="lazy" src="{% url 'shared_file' share.code f.pk %}" alt="{{ f.original_name }}">
+        </a>
+      {% else %}
+        <div class="noprev">Aperçu indisponible</div>
+      {% endif %}
+      <figcaption>
+        <span title="{{ f.original_name }}">{{ f.original_name }}</span>
+        <a href="{% url 'shared_file' share.code f.pk %}?dl=1">Télécharger</a>
+      </figcaption>
+    </figure>
+  {% empty %}
+    <p class="muted">Ce dossier est vide.</p>
+  {% endfor %}
+</div>
+{% endblock %}

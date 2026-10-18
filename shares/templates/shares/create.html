@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Nouveau dossier — DropCode{% endblock %}
+{% block content %}
+<h1>Nouveau dossier</h1>
+<form class="card stack" method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  <div>
+    <label for="title">Titre (facultatif, visible par l'acheteur)</label>
+    <input type="text" id="title" name="title" maxlength="120" placeholder="ex. Canapé 3 places — photos détaillées">
+  </div>
+  <div>
+    <label for="files">Photos et vidéos</label>
+    <input type="file" id="files" name="files" multiple required accept="image/*,video/*,.heic,.heif">
+    <p class="muted">Jusqu'à {{ max_files }} fichiers, {{ max_mb }} Mo maximum chacun (JPG, PNG, WEBP, HEIC, MP4, MOV…).</p>
+  </div>
+  <div>
+    <label for="expiry_days">Validité du code</label>
+    <select id="expiry_days" name="expiry_days">
+      {% for value, label in expiry_choices %}
+        <option value="{{ value }}" {% if value == default_days %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="row">
+    <button type="submit">Créer et générer le code</button>
+    <a class="btn secondary" href="{% url 'dashboard' %}">Annuler</a>
+  </div>
+</form>
+{% endblock %}

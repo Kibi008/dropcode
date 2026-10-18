@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Mes dossiers — DropCode{% endblock %}
+{% block content %}
+<div class="row between">
+  <h1>Mes dossiers</h1>
+  <a class="btn" href="{% url 'create_share' %}">+ Nouveau dossier</a>
+</div>
+{% if shares %}
+<ul class="share-list">
+  {% for s in shares %}
+  <li class="card">
+    <div class="row between">
+      <strong>{{ s.display_title }}</strong>
+      {% if s.is_expired %}<span class="pill expired">Expiré</span>
+      {% else %}<span class="pill">Expire le {{ s.expires_at|date:"j M Y" }}</span>{% endif %}
+    </div>
+    <div class="row">
+      <span class="code-badge">{{ s.code }}</span>
+      <span class="muted">{{ s.files.all|length }} fichier{{ s.files.all|length|pluralize }} · {{ s.view_count }} ouverture{{ s.view_count|pluralize }}{% if s.last_viewed_at %} · dernière le {{ s.last_viewed_at|date:"j M à H:i" }}{% endif %}</span>
+    </div>
+    <div class="row">
+      <a class="btn secondary" href="{% url 'share_detail' s.pk %}">Gérer</a>
+    </div>
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<div class="card"><p>Aucun dossier pour l'instant. Créez-en un pour obtenir un code à donner à vos acheteurs.</p></div>
+{% endif %}
+{% endblock %}

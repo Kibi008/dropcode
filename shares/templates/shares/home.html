@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}DropCode — Entrer un code{% endblock %}
+{% block content %}
+<section class="hero">
+  <h1>Vous avez reçu un code ?</h1>
+  <p>Saisissez-le pour voir les photos et vidéos complémentaires de l'annonce.</p>
+  <form class="code-form" method="post" autocomplete="off">
+    {% csrf_token %}
+    <input type="text" name="code" value="{{ typed|default:'' }}" placeholder="ex. pomme-482"
+           aria-label="Code d'accès" autocapitalize="none" autocorrect="off" spellcheck="false" required autofocus>
+    <button type="submit">Ouvrir</button>
+  </form>
+</section>
+<p class="muted" style="text-align:center;margin-top:36px">
+  Vous vendez quelque chose ? <a href="{% url 'register' %}">Créez un compte</a> pour partager vos médias avec un simple code.
+</p>
+{% endblock %}

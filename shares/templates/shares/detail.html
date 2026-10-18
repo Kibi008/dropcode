@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}{{ share.display_title }} — DropCode{% endblock %}
+{% block content %}
+<p><a href="{% url 'dashboard' %}">← Mes dossiers</a></p>
+<h1>{{ share.display_title }}</h1>
+
+<div class="card stack">
+  <div>
+    <div class="muted">Code à communiquer à l'acheteur</div>
+    <span class="code-badge" id="code">{{ share.code }}</span>
+    <button type="button" class="secondary" onclick="copyCode()" id="copy-btn">Copier</button>
+  </div>
+  <p class="muted">
+    L'acheteur le saisit sur <strong>{{ request.get_host }}</strong>.
+    {% if share.is_expired %}<span class="pill expired">Expiré</span>{% else %}Valable jusqu'au {{ share.expires_at|date:"j F Y à H:i" }}.{% endif %}
+    {{ share.view_count }} ouverture{{ share.view_count|pluralize }}.
+  </p>
+  <form class="row" method="post" action="{% url 'extend_share' share.pk %}">
+    {% csrf_token %}
+    <select name="expiry_days" aria-label="Nouvelle durée" style="width:auto">
+      {% for value, label in expiry_choices %}<option value="{{ value }}">{{ label }}</option>{% endfor %}
+    </select>
+    <button class="secondary" type="submit">Prolonger / réactiver à partir de maintenant</button>
+  </form>
+</div>
+
+<h2>Fichiers ({{ files|length }})</h2>
+<div class="gallery">
+  {% for f in files %}
+    <figure>
+      {% if f.is_video %}
+        <video controls preload="metadata" playsinline src="{% url 'owner_file' share.pk f.pk %}"></video>
+      {% elif f.is_browser_image %}
+        <img loading="lazy" src="{% url 'owner_file' share.pk f.pk %}" alt="{{ f.original_name }}">
+      {% else %}
+        <div class="noprev">Aperçu indisponible</div>
+      {% endif %}
+      <figcaption>
+        <span title="{{ f.original_name }}">{{ f.original_name }}</span>
+        <form method="post" action="{% url 'delete_share_file' share.pk f.pk %}"
+              onsubmit="return confirm('Supprimer ce fichier ?')">
+          {% csrf_token %}<button class="link" type="submit">Supprimer</button>
+        </form>
+      </figcaption>
+    </figure>
+  {% empty %}
+    <p class="muted">Aucun fichier.</p>
+  {% endfor %}
+</div>
+
+<h2>Ajouter des fichiers</h2>
+<form class="card row" method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  <input type="file" name="files" multiple required accept="image/*,video/*,.heic,.heif" style="flex:1;min-width:200px">
+  <button type="submit">Ajouter</button>
+</form>
+
+<h2>Zone dangereuse</h2>
+<form method="post" action="{% url 'delete_share' share.pk %}"
+      onsubmit="return confirm('Supprimer définitivement ce dossier et tous ses fichiers ?')">
+  {% csrf_token %}
+  <button class="danger" type="submit">Supprimer le dossier</button>
+</form>
+
+<script>
+function copyCode() {
+  const code = document.getElementById('code').textContent.trim();
+  const btn = document.getElementById('copy-btn');
+  const done = () => { btn.textContent = 'Copié ✓'; setTimeout(() => btn.textContent = 'Copier', 1500); };
+  if (navigator.clipboard) navigator.clipboard.writeText(code).then(done); else done();
+}
+</script>
+{% endblock %}

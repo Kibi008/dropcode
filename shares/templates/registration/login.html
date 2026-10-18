@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Connexion — DropCode{% endblock %}
+{% block content %}
+<h1>Connexion</h1>
+<form class="card stack" method="post" style="max-width:440px">
+  {% csrf_token %}
+  {{ form.non_field_errors }}
+  <div><label for="id_username">Nom d'utilisateur</label>
+    <input type="text" name="username" id="id_username" autocomplete="username" autocapitalize="none" required autofocus></div>
+  <div><label for="id_password">Mot de passe</label>
+    <input type="password" name="password" id="id_password" autocomplete="current-password" required></div>
+  <button type="submit">Se connecter</button>
+  <p class="muted">Pas encore de compte ? <a href="{% url 'register' %}">Créer un compte</a></p>
+</form>
+{% endblock %}
